@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+  </head>
+  <body>
+    
+    <svg id="white-square" width="900" height="500" style="border:1px solid #ccc"></svg>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script>
+      data = [
+        { year: 2005, value: 734.69 },
+        { year: 2006, value: 750.70 },
+        { year: 2007, value: 755.13 },
+        { year: 2008, value: 694.19 },
+        { year: 2009, value: 681.83 },
+        { year: 2010, value: 718.98 },
+        { year: 2011, value: 740.57 },
+        { year: 2012, value: 752.24 },
+        { year: 2013, value: 767.24 },
+        { year: 2014, value: 802.45 },
+        { year: 2015, value: 805.65 },
+        { year: 2016, value: 935.58 },
+        { year: 2017, value: 967.13 },
+        { year: 2018, value: 1007.24 },
+      ]
+      height = 500
+      width = 900
+      margin = {top: 10, right: 10, bottom: 20, left: 35}
+      yMax = d3.max(data, d => d.value)
+      xDomain = data.map(d => d.year)
+      xScale = d3.scaleBand()
+        .domain( xDomain )
+        .range([ margin.left, width - margin.right - margin.left ])
+        .padding(0.5)
+      yScale = d3.scaleLinear()
+        .domain([ 0, yMax ])
+        .range([ height - margin.bottom, margin.top ])
+      xAxis = d3.axisBottom(xScale)
+        .tickSizeOuter(0)
+      yAxis = d3.axisLeft(yScale)
+        .tickSizeOuter(0)
+      function bars() {
+
+        const svg = d3.select('#white-square')
+        
+        svg.append('g')
+          .attr('class', 'bars')
+          .selectAll('rect')
+          .data( data )
+          .join('rect')
+            .attr('class', 'bar')
+            .attr('x', d => xScale(d.year))
+            .attr('y', d => yScale(d.value))
+            // bandwidth is a special function of scaleBand
+            // it returns the width of the band (bar) based on the configuration
+            // we set up earlier
+            .attr('width', xScale.bandwidth())
+            // remember that yScale(0) is the height of the entire chart
+            // so we subtract the y position of the top of the bar yScale(d.value)
+            // from it to get the total height of the bar.
+            .attr('height', d => yScale(0) - yScale(d.value))
+            .style('fill', '#7472c0')
+        
+        // Here we render the x axis
+        svg.append('g')
+            .attr('class', 'x-axis')
+            // First set its container's (g) position to the 
+            // bottom of the chart
+            .attr('transform', `translate(0,${ height - margin.bottom })`)
+            // then just call this to render it
+            .call( xAxis )
+
+        // it works the same for the y axis
+        svg.append('g')
+            .attr('class', 'y-axis')
+            .attr('transform', `translate(${ margin.left },0)`)
+            .call( yAxis )
+        
+        return svg
+      }
+      bars()
+    </script>
+  </body>
+</html>

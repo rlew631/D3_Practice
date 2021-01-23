@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+  </head>
+  <body>
+    <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+    <svg id="white-square" height="160" width="160" style="border: 1px solid #ccc"></svg>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script>
+      data = [
+        { name: 'a', value: 1 }, 
+        { name: 'b', value: 2 }, 
+        { name: 'c', value: 3 },
+        { name: 'd', value: 5 },
+        { name: 'e', value: 8 }
+      ]
+      function myFunct() {
+        
+        const svg = d3.select("#white-square")
+        
+        const circles = svg.selectAll('circle').data( data )
+
+        circles.enter().append('circle')
+          // set the circles' radius
+          .attr('r', (d) => d.value * 10)
+          // set the circles' x position
+          .attr('cx', (d) => d.value * 10)
+          // set the circles' y position
+          .attr('cy', 80)
+          .attr('fill', 'transparent')
+          .attr('stroke', 'steelblue')
+        
+        const text = svg.selectAll('text').data( data )
+        
+        text.enter().append('text')
+          .attr('x', (d) => d.value * 10 * 2)
+          .attr('y', 80)
+          // This is a "magic number" in svg. It makes sure the text is vertically centered
+          .attr('dy', '0.35em')
+          // set from which direction the text expands
+          .attr('text-anchor', 'end')
+          // set the actual text
+          .text(d => d.name)
+
+        return svg
+      }
+      myFunct()
+
+    </script>
+  </body>
+</html>

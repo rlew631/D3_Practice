@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+  </head>
+  <body>
+    <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+    <svg id="white-square" height="40" width="160" style="border: 1px solid #ccc"></svg>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script>
+      function oneShape() {
+        
+        // first, we select our svg object
+        const svg = d3.select("#white-square")
+        
+        // now, we append a rect (rectangle) element to the SVG
+        const rects = svg.selectAll('rect')
+        const data = [ 0, 1, 2, 3, 4 ]
+        
+        // finally, we style and position the rect
+        rects
+          // The data join - the big moment!
+          // When we do this, we tell D3 to include
+          // 5 additional rects in our selection, one for each element in our data array
+          .data( data )
+          // Now we append the rects just like before.
+          // Unlike before, when we append, we're actually 
+          // appending all 5 rects at once
+          .join('rect')
+            // ...and when we set style and attributes, we're setting them
+            // for all 5 rects at once, too
+            .style('fill', 'black')
+            .attr('height', 20)
+            .attr('width', 20)
+            .attr('y', 10)
+            // This positions each new rect 10 pixels to the right
+            // of the last rect. We'll explain what's going on here on day 3
+            .attr('x', (d,i) => { return 10 + (i * 30) })
+  
+        return svgHTML
+      }
+      oneShape();
+    </script>
+    hahahahahah
+  </body>
+</html>

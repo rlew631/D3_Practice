@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+  </head>
+  <body>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <svg id="white-square" width="900" height="500" style="border:1px solid #ccc"></svg>
+    <script>
+      width = 900
+      height = 500
+      margin = {
+        top: 10,
+        right: 80,
+        bottom: 30,
+        left: 35
+      }
+      var data = [[],[],[],[]]
+      d3.csv("big-mac-source-data.csv", function(d){
+          if (d.name == "United States"){
+            data[0].push({
+              name : "United States",
+              iso : "USA",
+              date : d.date,
+              price : d.local_price
+            })
+          }
+          else if (d.name == "Sweden"){
+            data[1].push({
+              name : "Sweden",
+              iso : "SWE",
+              date : d.date,
+              price : d.local_price
+            })
+          }
+          else if (d.name == "China"){
+            data[2].push({
+              name: "China",
+              iso: "CHN",
+              date: d["date"],
+              price: d["local_price"]
+            })
+          }
+          else if (d.name == "Euro area"){
+            data[3].push({
+              name: "Euro area",
+              iso: "EUZ",
+              date: d["date"],
+              price: d["local_price"]
+            })
+          }
+      })
+    // </script>
+    // <script defer>
+      function colors() {
+        const countryNames =  data.map(d => d.name)
+        return d3.scaleOrdinal( 
+          countryNames,
+          d3.schemeCategory10
+        )
+      }
+      function xScale() {
+        const startDate = data[0][0].date,
+              endDate = data[0][data[0].length - 1].date
+        return d3.scaleTime(
+          // domain
+          [ startDate, endDate ], 
+          // range
+          [ margin.left, width - margin.right ]
+        )
+      }
+      // flatten the data into a single array
+      function subfunc(){
+        const prices = data.flat().map(d => d.price),
+            // and find the max value from that array
+            yMax = d3.max( [...prices, 8] )
+      
+        return d3.scaleLinear(
+          [ 1, yMax ],
+          [ height - margin.bottom, margin.top ]
+        )
+      }
+      yScale = subfunc();
+      function yAxis() {
+        const formatter = d3.format('$.2f')
+        
+        return d3.axisLeft(yScale)
+          .tickFormat(d => formatter(d))
+      }
+      function xAxis(){return d3.axisBottom(xScale)}
+      line = d3.line()
+        .x(d => xScale(d.date))
+        .y(d => yScale(d.price))
+        .curve(d3.curveNatural)
+      function container() {
+        // svg = d3.select('#white-square')
+        d3.select('#white-square')
+          .selectAll('path')
+          .data( data )
+          .join('path')
+            .attr('class', 'big-mac-line')
+            // Using our line generator here
+            .attr('d', line)
+            // Every data point in the array has a name key
+            // so we just grab the one from d[0]
+            .style('stroke', d => colors(d.name))
+            .style('stroke-width', 2)
+            .style('fill', 'transparent')
+        
+        
+        // This places the labels to the right of each line
+        d3.select('#white-square')
+          .selectAll('text.label')
+          .data( data )
+          .join('text')
+            .attr('class', 'label')
+            // place the ticks to the right of the chart
+            .attr('x', width - margin.right + 5)
+            // Place the ticks at the same y position as
+            // the last y value of the line (remember, d is our array of points)
+            // .attr('y', d => yScale( d[d.length - 1].price ) + (d[0].name === 'Sweden' ? -10 : 0))
+            .attr('y', d => yScale( d.price ) + (d.name === 'Sweden' ? -10 : 0))
+            .attr('dy', '0.35em')
+            .style('fill', d => colors(d.name))
+            .style('font-family', 'sans-serif')
+            .style('font-size', 12)
+          .text(d => d.name)
+        
+        d3.select('#white-square')
+          .append('g')
+            .attr('class', 'x-axis')
+            .attr('transform', `translate(0,${ height - margin.bottom })`)
+          .call(xAxis)
+        
+        d3.select('#white-square')
+          .append('g')
+            .attr('class', 'y-axis')
+            .attr('transform', `translate(${ margin.left },0)`)
+          .call(yAxis)
+          // This removes the vertical line on the axis between the ticks and the rest of the chart.
+          // Purely an aesthetic choice
+          .selectAll('.domain').remove()
+        
+      }
+      container()
+    </script>
+  </body>
+</html>

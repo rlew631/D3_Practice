@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+      integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+      crossorigin="anonymous"
+    />
+  </head>+
+
+  <body>
+    <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+    <svg id="white-square" height="120" width="120" style="border: 1px solid #ccc"></svg>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://unpkg.com/d3-simple-slider"></script>
+    
+    <div class="container">
+      <h2>Simple</h2>
+      <div class="row align-items-center">
+        <div class="col-sm-2"><p id="value-simple"></p></div>
+        <div class="col-sm"><div id="slider-simple"></div></div>
+      </div>
+    </div>
+    <script>
+      function changeSVG(val) {
+        const svg = d3.select("#white-square")
+        const rects = svg.selectAll('rect')
+        rects.remove()
+
+        svg
+          .append('rect')
+            .attr('width', 20+val)
+            .attr('height', 20+val)
+            // Set the x value based on the slider value (passed into the x scale)
+            .attr('x', val)
+            // Same for y/y ccale!
+            .attr('y', val)
+            // Same for color/color scale!
+            .style('fill', "red")
+
+        return svg
+      }
+      // Simple
+      var data = [0, 20, 40, 60, 80, 100];
+    
+      var sliderSimple = d3
+        .sliderBottom()
+        .min(d3.min(data))
+        .max(d3.max(data))
+        .width(300)
+        .tickFormat(d3.format('2'))
+        .ticks(5)
+        .default(0.015)
+        .on('onchange', val => {
+          d3.select('p#value-simple').text(d3.format('2')(val));
+          changeSVG(val);
+        });
+      var gSimple = d3
+        .select('div#slider-simple')
+        .append('svg')
+        .attr('width', 500)
+        .attr('height', 100)
+        .append('g')
+        .attr('transform', 'translate(30,30)');
+
+      gSimple.call(sliderSimple);
+
+      d3.select('p#value-simple').text(d3.format('2')(sliderSimple.value()));
+
+      myScale = (d) => 10 * d
+      scale = d3.scaleLinear()
+      function useMyScale(pre_scaled) {
+        const dMin = 0, dMax = 10
+        const rMin = 0, rMax = 100
+        
+        scale
+          .domain([ dMin, dMax ])
+          .range([ rMin, rMax ])
+        
+        return scale(pre_scaled)
+      }
+      
+    </script>
+  </body>
+</html>

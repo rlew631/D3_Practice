@@ -26,7 +26,7 @@
         left: 35
       }
       var data = [[],[],[],[]]
-      d3.csv("big-mac-source-data.csv", function(d){
+      const readcsv = (() => {d3.csv("big-mac-source-data.csv", function(d){
           if (d.name == "United States"){
             data[0].push({
               name : "United States",
@@ -59,17 +59,17 @@
               price: d["local_price"]
             })
           }
-      })
-    // </script>
-    // <script defer>
-      function colors() {
-        const countryNames =  data.map(d => d.name)
-        return d3.scaleOrdinal( 
+      })})();
+
+      const colors = (() => {
+        const countryNames = data.map(d => d[0].name);
+        return d3.scaleOrdinal(
           countryNames,
           d3.schemeCategory10
-        )
-      }
-      function xScale() {
+        );
+      })();
+
+      const xScale = (() => {
         const startDate = data[0][0].date,
               endDate = data[0][data[0].length - 1].date
         return d3.scaleTime(
@@ -78,9 +78,10 @@
           // range
           [ margin.left, width - margin.right ]
         )
-      }
+      })();
+
       // flatten the data into a single array
-      function subfunc(){
+      const subfunc = (() => {
         const prices = data.flat().map(d => d.price),
             // and find the max value from that array
             yMax = d3.max( [...prices, 8] )
@@ -89,19 +90,24 @@
           [ 1, yMax ],
           [ height - margin.bottom, margin.top ]
         )
-      }
+      })();
+
       yScale = subfunc();
-      function yAxis() {
+
+      const yAxis = (() => {
         const formatter = d3.format('$.2f')
         
         return d3.axisLeft(yScale)
           .tickFormat(d => formatter(d))
-      }
-      function xAxis(){return d3.axisBottom(xScale)}
-      line = d3.line()
-        .x(d => xScale(d.date))
+      })();
+      
+      const xAxis = (() => {return d3.axisBottom(xScale)})();
+
+      const line = d3.line()
+        .x(d => xScale(new Date(d.date)))
         .y(d => yScale(d.price))
-        .curve(d3.curveNatural)
+        .curve(d3.curveNatural);
+
       function container() {
         // svg = d3.select('#white-square')
         d3.select('#white-square')

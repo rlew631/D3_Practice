@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+  </head>
+  <body>
+    <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+    <svg id="white-square" width="300" height="100" style="border:1px solid #ccc"></svg>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script>
+      circle = d3.select('#white-square')
+        .append('circle')
+          .attr('r', 15)
+          .attr('cx', 20)
+          .attr('cy', 20)
+
+      // circle
+      //   .transition()
+      //     .attr('cx', 280)
+      //     .attr('cy', 80)
+
+      // circle.transition()
+      //   .delay(1200)
+      //   .duration(1200)
+      //   .ease(d3.easeLinear)
+      //     .attr('cx', 280)
+      //     .attr('cy', 80)
+
+      // circle
+      //   .transition()
+      //   .delay(1200)
+      //   .duration(1200)
+      //     .attr('cx', 280)
+      //     .attr('cy', 80)
+      //   .transition()
+      //   .delay(1200)
+      //   .duration(1200)
+      //     .attr('cx', 20)
+      //     .attr('cy', 20)
+
+      async function animation1() {
+
+        const circle = d3.select('circle')
+            .attr('r', 15)
+            .attr('cx', 20)
+            .attr('cy', 20)
+        
+        while(true) {
+        
+          // yield svg.node()
+          
+          await circle
+            .transition()
+            .delay(1200)
+            // try uncommenting the transitions below to see how they effect the animation
+            .ease(d3.easeCubicInOut)
+            // .ease(d3.easeLinear)
+            // .ease(d3.easePoly.exponent(5))
+            .duration(1200)
+              .attr('cx', 280)
+              .attr('cy', 80)
+            .transition()
+            .delay(1200)
+              .attr('cx', 20)
+              .attr('cy', 20)
+            .end()
+        }       
+      }
+      animation1()
+    </script>
+    <svg id="white-square2" width="100" height="100" style="border:1px solid #ccc"></svg>
+    <script>
+      async function animation2() {
+        // breathing
+        const svg = d3.select('#white-square2')
+        
+        const circle = svg.append('circle')
+            .attr('r', 15)
+            .attr('cx', 50)
+            .attr('cy', 50)
+            .style('fill', '#4269bd')
+
+        while(true) {
+          // yield svg.node()
+          
+          await circle
+            .transition()
+            .ease(d3.easeSinInOut)
+            .delay(500)
+            .duration(2000)
+              .attr('r', 20)
+              .style('fill', '#6887ca')
+            .transition()
+              .attr('r', 15)
+              .style('fill', '#4269bd')
+            .end()
+        }
+      }
+      animation2()
+    </script>
+    <svg id="white-square3" width="300" height="300" style="border:1px solid #ccc"></svg>
+    <script>
+      async function animation3() {
+        
+        const data = d3.range(0, 2 * Math.PI, 2 * Math.PI/20)
+        
+        const svg = d3.select('#white-square3')
+        
+        const circle = svg
+          .selectAll('circle')
+          .data( data )
+          .join('circle')
+            .attr('r', 15)
+            .attr('cx', d => 150 + 130 * Math.cos(d))
+            .attr('cy', d => 150 + 130 * Math.sin(d))
+            .style('fill', (d,i) => d3.quantize(d3.interpolateRainbow, data.length + 1)[i])
+        
+        while(true) {
+        
+          // yield svg.node()
+          
+          await circle
+            .transition()
+            .duration(5000)
+              .attr('cx', (d,i,arr) => 300 - d3.select(arr[i]).attr('cx'))
+              .attr('cy', (d,i,arr) => 300 - d3.select(arr[i]).attr('cy'))
+            .end()
+        }
+      }
+      animation3()
+    </script>
+  </body>
+</html>

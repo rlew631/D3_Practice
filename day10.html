@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+  </head>
+  <body>
+    <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+    <svg id="white-square" width="900" height="700" style="border:1px solid #ccc"></svg>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script>
+      data = {"children":[{"name":"USA","children":[{"name":"Coal","value":"1254542"},{"name":"Oil","value":"38825"},{"name":"Natural gas","value":"1513414"},{"name":"Biofuels","value":"58955"},{"name":"Waste","value":"18259"},{"name":"Nuclear","value":"841329"},{"name":"Hydro","value":"315619"},{"name":"Geothermal","value":"18962"},{"name":"Solar PV","value":"87183"},{"name":"Solar thermal","value":"4640"},{"name":"Tide","value":""},{"name":"Wind","value":"277918"},{"name":"Other sources","value":"5263"}]},{"name":"UK","children":[{"name":"Coal","value":"17570"},{"name":"Oil","value":"1682"},{"name":"Natural gas","value":"131482"},{"name":"Biofuels","value":"32086"},{"name":"Waste","value":"8023"},{"name":"Nuclear","value":"65064"},{"name":"Hydro","value":"7963"},{"name":"Geothermal","value":"57116"},{"name":"Solar PV","value":"12922"},{"name":"Solar thermal","value":""},{"name":"Tide","value":"8"},{"name":"Wind","value":""},{"name":"Other sources","value":""}]},{"name":"SWE","children":[{"name":"Coal","value":"2035"},{"name":"Oil","value":"379"},{"name":"Natural gas","value":"564"},{"name":"Biofuels","value":"9338"},{"name":"Waste","value":"2539"},{"name":"Nuclear","value":"65801"},{"name":"Hydro","value":"61605"},{"name":"Geothermal","value":"16623"},{"name":"Solar PV","value":"404"},{"name":"Solar thermal","value":""},{"name":"Tide","value":""},{"name":"Wind","value":""},{"name":"Other sources","value":""}]},{"name":"RUS","children":[{"name":"Coal","value":"174568"},{"name":"Oil","value":"6976"},{"name":"Natural gas","value":"518660"},{"name":"Biofuels","value":"84"},{"name":"Waste","value":"2594"},{"name":"Nuclear","value":"203143"},{"name":"Hydro","value":"187131"},{"name":"Geothermal","value":"435"},{"name":"Solar PV","value":"558"},{"name":"Solar thermal","value":""},{"name":"Tide","value":""},{"name":"Wind","value":"140"},{"name":"Other sources","value":""}]},{"name":"CHN","children":[{"name":"Coal","value":"4508568"},{"name":"Oil","value":"10278"},{"name":"Natural gas","value":"196400"},{"name":"Biofuels","value":"79537"},{"name":"Waste","value":"13386"},{"name":"Nuclear","value":"248070"},{"name":"Hydro","value":"1189840"},{"name":"Geothermal","value":"125"},{"name":"Solar PV","value":"130659"},{"name":"Solar thermal","value":"29"},{"name":"Tide","value":"11"},{"name":"Wind","value":"295025"},{"name":"Other sources","value":""}]},{"name":"BRA","children":[{"name":"Coal","value":"25337"},{"name":"Oil","value":"15917"},{"name":"Natural gas","value":"65593"},{"name":"Biofuels","value":"52255"},{"name":"Waste","value":""},{"name":"Nuclear","value":"15739"},{"name":"Hydro","value":"370906"},{"name":"Geothermal","value":""},{"name":"Solar PV","value":"832"},{"name":"Solar thermal","value":""},{"name":"Tide","value":""},{"name":"Wind","value":"42373"},{"name":"Other sources","value":"447"}]}]}
+      width = 900; height = 700
+      margin = {top: 10, right: 10, bottom: 10, left: 10}
+      colorScale = d3.scaleOrdinal( d3.schemeSet2 )
+      function hierarchy() {
+        const dataCopy = JSON.parse( JSON.stringify( data ) )
+
+        return d3.hierarchy( dataCopy )
+          .sum(d => d.value)
+          .sort((a, b) => b.value - a.value)
+      }
+      hierarchy()
+
+      treemap = d3.treemap()
+        // set the size of the treemap render area
+        .size([ width, height ])
+        // set the padding between every rectangle in px
+        .padding(2)
+        // set the padding at the top of each group of rectangles
+        // so that we can fit the country labels
+        .paddingTop(10)
+        // Set the generator to round pixel values to the nearest value
+        // (makes things look better)
+        .round(true)
+      
+      root = treemap( hierarchy() )
+
+      function chart() {
+        const svg = d3.select('#white-square')
+
+        const g = svg.append('g')
+            .attr('class', 'treemap-container')
+
+        // Place the labels for our countries
+        g.selectAll('text.country')
+          // The data is the first "generation" of children
+          .data( root.children )
+          .join('text')
+            .attr('class', 'country')
+            // The rest is just placement/styling
+            .attr('x', d => d.x0)
+            .attr('y', d => d.y0)
+            .attr('dy', '0.6em')
+            .attr('dx', 3)
+            .style('font-size', 12)
+          // Remember, the data on the original node is available on node.data (d.data here)
+          .text(d => d.data.name)
+
+        // Now, we place the groups for all of the leaf nodes
+        const leaf = g.selectAll('g.leaf')
+          // root.leaves() returns all of the leaf nodes
+          .data(root.leaves())
+          .join('g')
+            .attr('class', 'leaf')
+            // position each group at the top left corner of the rect
+            .attr('transform', d => `translate(${ d.x0 },${ d.y0 })`)
+            .style('font-size', 10)
+
+        // A title element tells the browser to display its text value
+        // in a popover when the cursor is held over a rect. This is a simple
+        // way to add some interactivity
+        leaf.append('title')
+          .text(d => `${ d.parent.data.name }-${ d.data.name }\n${ d.value.toLocaleString() + ' GWh' }`)
+
+        // Now we append the rects. Nothing crazy here
+        leaf.append('rect')
+            .attr('fill', d => colorScale(d.parent.data.name))
+            .attr('opacity', 0.7)
+            // the width is the right edge position - the left edge position
+            .attr('width', d => d.x1 - d.x0)
+            // same for height, but bottom - top
+            .attr('height', d => d.y1 - d.y0)
+            // make corners rounded
+            .attr('rx', 3)
+            .attr('ry', 3)
+
+        // This next section checks the width and height of each rectangle
+        // If it's big enough, it places labels. If not, it doesn't.
+        leaf.each((d, i, arr) => {
+
+          // The current leaf element
+          const current = arr[i]
+          
+          const left = d.x0,
+                right = d.x1,
+                // calculate its width from the data
+                width = right - left,
+                top = d.y0,
+                bottom = d.y1,
+                // calculate its height from the data
+                height = d.y1 - d.y0
+
+          // too small to show text
+          const tooSmall = width < 34 || height < 25
+          
+          // and append the text (you saw something similar with the pie chart (day 6)
+          const text = d3.select( current ).append('text')
+              // If it's too small, don't show the text
+              .attr('opacity', tooSmall ? 0 : 0.9)
+            .selectAll('tspan')
+            .data(d => [ d.data.name, d.value.toLocaleString() ])
+            .join('tspan')
+              .attr('x', 3)
+              .attr('y', (d,i) => i ? '2.5em' : '1.15em')
+              .text(d => d)
+
+        })
+        return svg.node();
+      }
+      chart()
+    </script>
+  </body>
+</html>

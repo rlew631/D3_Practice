@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+  </head>
+  <body>
+    <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+    
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <svg id="white-square" width="300" height="300" style="border:1px solid #ccc"></svg>
+    <svg id="white-square2" width="300" height="300" style="border:1px solid #ccc"></svg>
+    <script>
+      function hover() {
+        const svg = d3.select('#white-square')
+        
+        // a 10x10 matrix
+        const data = [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ].map(() => [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ])
+        
+        svg.selectAll('g')
+          .data(data)
+          .join('g')
+            .attr('transform', (d,i) => `translate(0,${30 * i})`)
+          .selectAll('rect')
+          .data(d => d)
+          .join('rect')
+            .attr('x', (d,i) => 30 * i)
+            .attr('height', 30)
+            .attr('width', 30)
+            .style('fill', '#4dbeff')
+            // When the mouse moves over a rect, quickly fade its color to blue
+            .on('mouseover', function(e, d) {
+          
+              d3.select(this)
+                .transition()
+                .duration(100)
+                  .style('fill', 'white')
+          
+            })
+            // When the mouse leaves a rect, slowly fade its color back to orange
+            .on('mouseout', function(e, d) {
+          
+              d3.select(this)
+                .transition()
+                .duration(2000)
+                  .style('fill', '#4dbeff')
+          
+            })
+        
+        return svg.node() 
+      }
+      hover()
+
+      function click() {
+        const svg = d3.select('#white-square2')
+        
+        // array of 100 elements
+        const data = d3.range(0, 100)
+        
+        const circles = svg.selectAll('circle')
+          .data( data )
+          .join('circle')
+        
+        circles
+          .attr('cx', (d,i) => 15 + 30 * (i % 10))
+          .attr('cy', (d,i) => 15 + Math.floor( i/10 ) * 30)
+          .attr('r', 10)
+          .style('fill', '#ff5900')
+          // When we click an element, color all elements in the same row
+          // and all elements in the same column, then fade them back
+          .on('click', (e, d) => {
+
+            const clickX = d % 10,
+              clickY = Math.floor(d/10)
+
+            // go through the array of circles one-by-one
+            circles.each(function(c, i) {
+
+              const currX = i % 10,
+                    currY = Math.floor(i/10)
+
+              // If it's the one we clicked, don't change it
+              if(d == i) { 
+                return
+              }          
+              // But if an element has the same x position
+              // or the same y position...
+              else if(currX == clickX || currY == clickY) {
+                // then change it to blue quickly, then fade slowly back
+                d3.select(this)
+                  .transition()
+                  .duration(100)
+                  .style('fill', '#4dbeff')
+                  .transition()
+                  .duration(1000)
+                  .style('fill', '#ff5900')
+              }
+            })
+          })
+        return svg.node()
+      }
+      click();
+    </script>
+  </body>
+</html>

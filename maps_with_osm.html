@@ -1,0 +1,61 @@
+<!-- https://observablehq.com/@matijapiskorec/drawing-maps-from-openstreetmap-with-d3 -->
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+  </head>
+  <body>
+    <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+    
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://unpkg.com/topojson@3"></script>
+    <svg id="white-square" width="300" height="300" style="border:1px solid #ccc"></svg>
+    <script>
+      margin = 15
+      height = 400
+      width = 400
+      async function counties() {
+        let data = await d3.json('https://gist.githubusercontent.com/matijapiskorec/974367d26e8f4572bf84b0c0878a1c07/raw/e7a9281fd6fc41fa6397d81626d22d1923400c11/croatia_counties_coastline_topojson.json').then()
+
+        features = topojson.feature(data, data.objects.layer1).features
+                  .concat(topojson.feature(data, data.objects.layer2).features)
+        
+        return {type: "FeatureCollection",
+                features}
+      }
+      counties().then(county_data => {
+        county = county_data.features.filter(county => county.properties.name == "Karlovačka županija")[0]
+        projection = d3.geoMercator().fitExtent([[margin, margin], [width - margin, height - margin]], county)
+        pathGenerator = d3.geoPath().projection(projection)
+        function countyMap() {
+          // create SVG element
+          let svg = d3.select('#white-square')
+          
+          // construct the element
+          svg.append('path')
+            .datum(county)
+            .attr('d', pathGenerator)
+            .attr('fill', 'none')
+            .attr('stroke', '#999999')
+            .attr('stroke-width', '2')
+          
+          // pass to Observable to draw this block
+          return svg.node()
+        }
+        countyMap()
+      })
+    </script>
+  </body>
+</html>
